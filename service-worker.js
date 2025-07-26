@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calc-taxas-v1';
+const CACHE_NAME = 'calc-taxas-v2';
 
 // Detecta o caminho base automaticamente
 const BASE_PATH = self.location.pathname.replace(/\/[^/]*$/, '/') ;
