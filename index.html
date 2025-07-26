@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <script src="script.js" defer></script>
+  <title>Calculadora Simples</title>
+
+  <meta name="author" content="Marcelo Campos">
+  <meta name="description" content="uma simples calculadora pra ajudar calcular taxas da maquina de cartão">
+
+</head>
+<body>
+  <header>
+    <h1>Calculadora de Taxas</h1><hr>
+  </header>
+  <!--
+     <nav>
+        <ul>
+          <li><a href="#">Cliente</a></li>
+          <li><a href="#">Vendedor</a></li>
+        </ul>
+      </nav>
+      -->
+  <main>
+    <label for="valor_bruto">Valor Bruto: </label>
+    <input type="number" id="valor_bruto" placeholder="1000">
+    <button>Calcular</button><br>
+    <table>
+      <thead>
+        <tr>
+          <th>Parcelas</th>
+          <th>Valor da Parcela</th>
+          <th>Valor Total</th>
+        </tr>
+      </thead>
+      <tbody id="tabela_resultado">
+      </tbody>
+    </table>
+  </main>
+  <footer>
+    <p>
+      Desenvolvido por Marcelo Campos
+    </p>
+  </footer>
+</body>
+</html>
