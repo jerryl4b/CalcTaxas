@@ -7,6 +7,8 @@
 
 h1 {
   text-align: center;
+  background: #007bff;
+  color: white;
 }
 /* Body ocupa toda a altura, fonte, etc */
 html, body {
