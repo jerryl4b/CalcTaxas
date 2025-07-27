@@ -40,34 +40,6 @@ footer {
   z-index: 1000;
 }
 
-/* Menu horizontal (nav) */
-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 auto 10px;
-  display: flex;
-  justify-content: center;
-  background: #007bff;
-  max-width: 600px;
-  border-radius: 4px;
-}
-
-nav li {
-  margin: 0 10px;
-}
-
-nav a {
-  display: block;
-  padding: 10px 15px;
-  color: #fff;
-  text-decoration: none;
-}
-
-nav a:hover, nav a.ativo {
-  background: #0056b3;
-  border-radius: 4px;
-}
-
 /* Inputs e botões */
 input[type="number"] {
   padding: 5px;

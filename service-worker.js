@@ -1,16 +1,14 @@
-const CACHE_NAME = 'calc-taxas-v1.4';
+const CACHE_NAME = 'calc-taxas-dinamico';
 
-// Descobre o caminho base do SW e monta os assets
-const BASE_PATH = self.location.pathname.replace(/service-worker\.js$/, '');
-
+// Lista de arquivos que sempre devem estar no cache
 const ASSETS = [
-  BASE_PATH,
-  BASE_PATH + 'index.html',
-  BASE_PATH + 'style.css',
-  BASE_PATH + 'script.js',
-  BASE_PATH + 'manifest.json',
-  BASE_PATH + 'icon-192.png',
-  BASE_PATH + 'icon-512.png',
+  '/',
+  '/index.html',
+  '/style.css',
+  '/script.js',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
 // Instala e salva no cache
@@ -18,11 +16,30 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
+  self.skipWaiting();
 });
 
-// Responde com cache quando offline
+// Ativa e limpa caches antigos automaticamente
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.map(key => {
+        if (key !== CACHE_NAME) return caches.delete(key);
+      }))
+    )
+  );
+  self.clients.claim();
+});
+
+// Estrategia network-first (busca na rede, se falhar pega cache)
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
+    fetch(event.request)
+      .then(response => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
