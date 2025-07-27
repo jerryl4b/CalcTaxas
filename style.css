@@ -10,6 +10,7 @@ h1 {
   background: #007bff;
   color: white;
 }
+
 /* Body ocupa toda a altura, fonte, etc */
 html, body {
   height: 100%;
@@ -20,8 +21,7 @@ html, body {
 /* Conteúdo principal com padding na base para não ficar coberto pelo footer */
 main {
   padding: 5px;
-  padding-bottom: 40px;
-  /* altura do footer + espaço */
+  padding-bottom: 40px; /* altura do footer + espaço */
   max-width: 600px;
   margin: 20px auto 0;
 }
@@ -32,32 +32,57 @@ footer {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 40px;
-  /* altura fixa */
+  height: 40px; /* altura fixa */
   background: #222;
   color: #fff;
   text-align: center;
-  line-height: 40px;
-  /* centraliza texto verticalmente */
+  line-height: 40px; /* centraliza texto verticalmente */
   z-index: 1000;
 }
 
-/* Inputs e botões */
-input[type="number"] {
-  padding: 5px;
-  width: 150px;
+/* Container geral: label+input e botão */
+.campo {
+  display: flex;
+  justify-content: center; /* centraliza tudo */
+  align-items: center;
+  gap: 8px;                /* espaço entre grupo e botão */
+  margin-top: 10px;
 }
 
-button {
-  padding: 5px 5px;
+/* Grupo do label e input */
+.grupo {
+  display: flex;
+  align-items: center;
+  gap: 6px;                /* espaço entre label e input */
+}
+
+.grupo label {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* Input numérico */
+.grupo input[type="number"] {
+  width: 150px;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Botão */
+.campo button {
+  padding: 0.5rem 1rem;
   background: #007bff;
   color: #fff;
   border: none;
   cursor: pointer;
   border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
 
-button:hover {
+.campo button:hover {
   background: #0056b2;
 }
 
