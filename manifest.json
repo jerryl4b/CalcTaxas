@@ -1,10 +1,9 @@
 {
-  
   "name": "Calculadora de Taxas",
   "short_name": "CalcTaxas",
   "description": "Calculadora simples para taxas de pagamento.",
-  "start_url": "./",
-  "scope":"./",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",

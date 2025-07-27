@@ -1,9 +1,8 @@
-const CACHE_NAME = 'calc-taxas-v1.3';
+const CACHE_NAME = 'calc-taxas-v1.4';
 
-// Detecta o caminho base automaticamente
-const BASE_PATH = self.location.pathname.replace(/\/[^/]*$/, '/') ;
+// Descobre o caminho base do SW e monta os assets
+const BASE_PATH = self.location.pathname.replace(/service-worker\.js$/, '');
 
-// Lista de arquivos a cachear
 const ASSETS = [
   BASE_PATH,
   BASE_PATH + 'index.html',
