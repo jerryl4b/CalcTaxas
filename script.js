@@ -1,3 +1,10 @@
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js')
+  .then(() => console.log('Service Worker registrado'))
+  .catch(err => console.log('Erro ao registrar SW:', err));
+}
+
 // Função principal do cálculo
 function calcular() {
   const taxas = [
@@ -57,9 +64,3 @@ document.getElementById('valor_bruto').addEventListener('keydown', function(even
     calcular();
   }
 });
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
-  .then(() => console.log('Service Worker registrado'))
-  .catch(err => console.log('Erro ao registrar SW:', err));
-}

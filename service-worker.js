@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calc-taxas-v2';
+const CACHE_NAME = 'calc-taxas-v1.3';
 
 // Detecta o caminho base automaticamente
 const BASE_PATH = self.location.pathname.replace(/\/[^/]*$/, '/') ;
@@ -9,7 +9,9 @@ const ASSETS = [
   BASE_PATH + 'index.html',
   BASE_PATH + 'style.css',
   BASE_PATH + 'script.js',
-  BASE_PATH + 'favicon.png'
+  BASE_PATH + 'manifest.json',
+  BASE_PATH + 'icon-192.png',
+  BASE_PATH + 'icon-512.png',
 ];
 
 // Instala e salva no cache
