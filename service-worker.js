@@ -1,6 +1,6 @@
 const CACHE_NAME = 'calc-taxas-dinamico';
 
-// Lista de arquivos que sempre devem estar no cache
+// Arquivos que ficam sempre no cache
 const ASSETS = [
   '/',
   '/index.html',
@@ -11,7 +11,7 @@ const ASSETS = [
   '/icon-512.png'
 ];
 
-// Instala e salva no cache
+// Instala e adiciona ao cache
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
@@ -19,7 +19,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Ativa e limpa caches antigos automaticamente
+// Ativa e limpa caches antigos
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -31,15 +31,22 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Estrategia network-first (busca na rede, se falhar pega cache)
+// Cache-first com atualização silenciosa
 self.addEventListener('fetch', event => {
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        return response;
-      })
-      .catch(() => caches.match(event.request))
+    caches.match(event.request).then(cachedResponse => {
+      const fetchPromise = fetch(event.request)
+        .then(networkResponse => {
+          // Se a rede responder, atualiza o cache em segundo plano
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, networkResponse.clone());
+          });
+          return networkResponse;
+        })
+        .catch(() => cachedResponse); // Se offline, usa o cache
+
+      // Se tiver cache, usa ele rápido; senão espera a rede
+      return cachedResponse || fetchPromise;
+    })
   );
 });
