@@ -4,11 +4,12 @@ const CACHE_NAME = 'calc-taxas-dinamico';
 const ASSETS = [
   '/',
   '/index.html',
-  '/style.css',
   '/script.js',
+  '/bootstrap.bundle.min.js',
+  '/bootstrap.min.css',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/icon-192-v2.png',
+  '/icon-512-v2.png'
 ];
 
 // Instala e adiciona ao cache
