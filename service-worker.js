@@ -79,5 +79,6 @@ self.addEventListener('message', (event) => {
       self.clients.matchAll({type: 'window'}).then(clients => {
         clients.forEach(client => client.navigate(client.url));
       })
+      )
   }
 });
