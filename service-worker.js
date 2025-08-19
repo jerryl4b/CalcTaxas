@@ -1,53 +1,83 @@
-const CACHE_NAME = 'calc-taxas-dinamico';
-
-// Arquivos que ficam sempre no cache
-const ASSETS = [
+const APP_VERSION = 'v1.0.5-auto-update';
+const CACHE_NAME = `calc-taxas-${APP_VERSION}`;
+const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/script.js',
   '/bootstrap.bundle.min.js',
   '/bootstrap.min.css',
   '/manifest.json',
-  '/icon-192-v2.png',
-  '/icon-512-v2.png'
+  '/service-worker.js',
+  '/icons/icon-48x48.png',
+  '/icons/icon-72x72.png',
+  '/icons/icon-96x96.png',
+  '/icons/icon-144x144.png',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png'
 ];
 
-// Instala e adiciona ao cache
-self.addEventListener('install', event => {
+// Instalação - Cache dos recursos iniciais
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(ASSETS_TO_CACHE))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// Ativa e limpa caches antigos
-self.addEventListener('activate', event => {
+// Ativação - Limpeza de caches antigos
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.map(key => {
-        if (key !== CACHE_NAME) return caches.delete(key);
-      }))
-    )
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames
+          .filter(name => name.startsWith('calc-taxas-') && name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      );
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Cache-first com atualização silenciosa
-self.addEventListener('fetch', event => {
+// Estratégia: Cache First com atualização em background
+self.addEventListener('fetch', (event) => {
+  // Ignora requisições não-GET e de outros domínios
+  if (event.request.method !== 'GET' || 
+      !event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
+      // Sempre tenta buscar na rede primeiro para atualizar o cache
       const fetchPromise = fetch(event.request)
         .then(networkResponse => {
-          // Se a rede responder, atualiza o cache em segundo plano
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, networkResponse.clone());
-          });
+          // Atualiza o cache se a resposta for válida
+          if (networkResponse.ok) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME)
+              .then(cache => cache.put(event.request, clone));
+          }
           return networkResponse;
         })
-        .catch(() => cachedResponse); // Se offline, usa o cache
+        .catch(() => cachedResponse); // Fallback para cache se offline
 
-      // Se tiver cache, usa ele rápido; senão espera a rede
+      // Retorna do cache imediatamente enquanto atualiza em background
       return cachedResponse || fetchPromise;
     })
   );
+});
+
+// Atualização automática quando nova versão é detectada
+self.addEventListener('message', (event) => {
+  if (event.data.action === 'checkForUpdate') {
+    // Força atualização imediata
+    self.skipWaiting();
+    self.clients.claim();
+    
+    // Recarrega todas as abas abertas
+    event.waitUntil(
+      self.clients.matchAll({type: 'window'}).then(clients => {
+        clients.forEach(client => client.navigate(client.url));
+      })
+  }
 });

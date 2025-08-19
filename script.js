@@ -1,80 +1,147 @@
-// Service Worker (PWA)
+// Service Worker (PWA) - Mantido igual
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./service-worker.js')
     .then(() => console.log('Service Worker registrado'))
     .catch(err => console.log('Erro ao registrar SW:', err));
 }
 
-// Função principal do cálculo
+// Cache de elementos DOM
+const elements = {
+  valorBruto: document.getElementById('valor_bruto'),
+  tabelaResultado: document.getElementById('tabela_resultado'),
+  teclado: document.querySelectorAll("#teclado_num .tecla")
+};
+
+// Taxas pré-definidas
+const taxas = [
+  0.0353, 0.0451, 0.0532, 0.0610, 0.0687,
+  0.0764, 0.0836, 0.0909, 0.0984, 0.1060,
+  0.1138, 0.1216
+];
+
+// Formatador monetário
+const formatter = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL'
+});
+
+// Função de arredondamento corrigida
+function arredondarPraCima5(valor) {
+  return Math.ceil(valor * 20) / 20; // Arredonda para múltiplos de 0.05
+}
+
+// Função principal do cálculo otimizada
 function calcular() {
-  const taxas = [
-    0.0353, 0.0451, 0.0532, 0.0610, 0.0687,
-    0.0764, 0.0836, 0.0909, 0.0984, 0.1060,
-    0.1138, 0.1216
-  ];
-
-  const valorBruto = parseFloat(document.getElementById('valor_bruto').value.replace(',', '.'));
-
-  if (isNaN(valorBruto)) {
-    alert('Digite um valor válido!');
+  const valorNumerico = parseFloat(elements.valorBruto.value.replace(',', '.'));
+  
+  // Limpa resultados se valor inválido
+  if (isNaN(valorNumerico)) {
+    elements.tabelaResultado.innerHTML = '';
     return;
   }
 
-  const tbody = document.getElementById('tabela_resultado');
-  tbody.innerHTML = '';
-
-  function arredondarPraCima5(num) {
-    return (num % 5 === 0) ? num : Math.ceil(num / 5) * 5;
-  }
-
-  for (let i = 0; i < taxas.length; i++) {
-    const parcela = i + 1;
-    const taxa = taxas[i];
-
-    const valorTotalBruto = valorBruto / (1 - taxa);
+  let htmlContent = '';
+  
+  taxas.forEach((taxa, index) => {
+    const parcela = index + 1;
+    const valorTotalBruto = valorNumerico / (1 - taxa);
     const valorTotal = arredondarPraCima5(valorTotalBruto);
     const valorParcela = valorTotal / parcela;
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${parcela}x</td>
-      <td>R$ ${valorParcela.toFixed(2).replace('.', ',')}</td>
-      <td>R$ ${valorTotal.toFixed(2).replace('.', ',')}</td>
+    htmlContent += `
+      <tr>
+        <td>${parcela}x</td>
+        <td>${formatter.format(valorParcela)}</td>
+        <td>${formatter.format(valorTotal)}</td>
+      </tr>
     `;
-    tbody.appendChild(tr);
-  }
+  });
+
+  elements.tabelaResultado.innerHTML = htmlContent;
 }
 
-// Configurando o teclado numérico estático
-const teclas = document.querySelectorAll("#teclado_num .tecla");
+// Debounce para otimização
+let debounceTimer;
+function debounceCalcular() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(calcular, 300);
+}
 
-teclas.forEach(btn => {
+// Configuração do teclado numérico
+elements.teclado.forEach(btn => {
   btn.addEventListener("click", () => {
-    const input = document.getElementById('valor_bruto');
     const valor = btn.textContent;
-
+    
     if (valor === "C") {
-      input.value = ""; // limpa tudo
-      document.getElementById('tabela_resultado').innerHTML=""
-    } 
-    else if (valor === ".") {
-      if (!input.value.includes(".")) {
-        input.value += input.value === "" ? "0." : ".";
+      elements.valorBruto.value = "";
+      elements.tabelaResultado.innerHTML = "";
+      return;
+    }
+    
+    if (valor === ".") {
+      if (!elements.valorBruto.value.includes(".")) {
+        elements.valorBruto.value += elements.valorBruto.value ? "." : "0.";
       }
-    } 
-    else {
-      input.value += valor;
-      calcular()
+      return;
+    }
+    
+    // Limita o tamanho máximo
+    if (elements.valorBruto.value.length < 10) {
+      elements.valorBruto.value += valor;
+      debounceCalcular();
     }
   });
 });
 
-// Botão de calcular
-document.getElementById('valor_bruto').addEventListener('input', calcular);
+// Validação de entrada
+elements.valorBruto.addEventListener('input', function() {
+  // Permite apenas números e um único ponto decimal
+  this.value = this.value
+    .replace(/[^\d.,]/g, '')
+    .replace(/(\..*)\./g, '$1')
+    .replace(/,/g, '.');
+  
+  debounceCalcular();
+});
 
-// Pressionar Enter no input
-document.getElementById('valor_bruto').addEventListener('keydown', function(event) {
-  if (event.key === 'Enter') {
+// Suporte a tecla Enter
+elements.valorBruto.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
     calcular();
   }
 });
+
+// Foco automático no carregamento
+window.addEventListener('DOMContentLoaded', () => {
+  elements.valorBruto.focus();
+});
+// Verifica atualizações a cada carregamento
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(registration => {
+      // Verifica atualizações periodicamente
+      setInterval(() => {
+        registration.update();
+      }, 60 * 60 * 1000); // Checa a cada hora
+
+      // Ouvinte para nova versão disponível
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed') {
+            if (confirm('Nova versão disponível! Deseja atualizar agora?')) {
+              // Envia mensagem para o Service Worker atualizar
+              newWorker.postMessage({action: 'checkForUpdate'});
+            }
+          }
+        });
+      });
+    });
+  
+  // Dispara imediatamente quando o app ganha foco
+  window.addEventListener('focus', () => {
+    navigator.serviceWorker.getRegistration()
+      .then(registration => registration?.update());
+  });
+}
