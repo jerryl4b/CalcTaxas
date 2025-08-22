@@ -27,7 +27,7 @@ const formatter = new Intl.NumberFormat('pt-BR', {
 
 // Função de arredondamento corrigida
 function arredondarPraCima5(valor) {
-  return Math.ceil(valor * 20) / 20; // Arredonda para múltiplos de 0.05
+  return Math.ceil(valor / 5) * 5; // Arredonda para múltiplos de 0.05
 }
 
 // Função principal do cálculo otimizada
@@ -64,7 +64,7 @@ function calcular() {
 let debounceTimer;
 function debounceCalcular() {
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(calcular, 300);
+  debounceTimer = setTimeout(calcular, 100);
 }
 
 // Configuração do teclado numérico
