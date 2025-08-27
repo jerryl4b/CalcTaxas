@@ -14,9 +14,9 @@ const elements = {
 
 // Taxas pré-definidas
 const taxas = [
-  0.0353, 0.0451, 0.0532, 0.0610, 0.0687,
-  0.0764, 0.0836, 0.0909, 0.0984, 0.1060,
-  0.1138, 0.1216
+  0.04127, 0.05391, 0.06203, 0.07036, 0.07890,
+  0.08766, 0.09216, 0.10137, 0.11081, 0.12052,
+  0.13050, 0.14075
 ];
 
 // Formatador monetário
@@ -27,7 +27,7 @@ const formatter = new Intl.NumberFormat('pt-BR', {
 
 // Função de arredondamento corrigida
 function arredondarPraCima5(valor) {
-  return Math.ceil(valor / 5) * 5; // Arredonda para múltiplos de 0.05
+  return Math.ceil(valor / 5) * 5;
 }
 
 // Função principal do cálculo otimizada
@@ -44,8 +44,8 @@ function calcular() {
   
   taxas.forEach((taxa, index) => {
     const parcela = index + 1;
-    const valorTotalBruto = valorNumerico / (1 - taxa);
-    const valorTotal = arredondarPraCima5(valorTotalBruto);
+    const valorTotal = valorNumerico * (1 + taxa);
+    // const valorTotal = arredondarPraCima5(valorTotalBruto);
     const valorParcela = valorTotal / parcela;
 
     htmlContent += `
